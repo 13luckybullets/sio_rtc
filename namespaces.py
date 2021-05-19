@@ -3,9 +3,6 @@ from socketio import AsyncNamespace
 from rtc.server_handler import RtcHandler
 
 
-RH = RtcHandler()
-
-
 class Base(AsyncNamespace):
 
     async def on_connect(self, sid, environ):
@@ -18,12 +15,14 @@ class Base(AsyncNamespace):
 
 class Rtc(Base):
     async def on_offer(self, sid, data):
-        await RH.set_offer(data)
-        answer = await RH.get_answer()
+        rtc = RtcHandler()
+
+        await rtc.set_offer(data)
+        answer = await rtc.get_answer()
         data = {
             'sdp': answer.sdp,
             'type': answer.type,
         }
 
-        await RH.recorder.start()
+        await rtc.recorder.start()
         await self.emit('answer', data)
